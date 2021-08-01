@@ -7,6 +7,8 @@ import time
 import warnings
 from datetime import datetime
 
+from google.cloud.bigquery.format_options import ParquetOptions
+
 import numpy as np
 
 # Required dependencies, but treat as optional so that _test_google_api_imports
@@ -558,6 +560,10 @@ class GbqConnector(object):
         chunksize=None,
         schema=None,
         progress_bar=True,
+        partitioned=False,
+        partition_column=None,
+        partition_type=None,
+        partition_expiration=None,
     ):
         from pandas_gbq import load
 
@@ -571,6 +577,10 @@ class GbqConnector(object):
                 chunksize=chunksize,
                 schema=schema,
                 location=self.location,
+                partitioned=partitioned,
+                partition_column=partition_column,
+                partition_type=partition_type,
+                partition_expiration=partition_expiration,
             )
             if progress_bar and tqdm:
                 chunks = tqdm.tqdm(chunks)
@@ -903,6 +913,10 @@ def to_gbq(
     credentials=None,
     verbose=None,
     private_key=None,
+    partitioned=False,
+    partition_column=None,
+    partition_type=None,
+    partition_expiration=None,
 ):
     """Write a DataFrame to a Google BigQuery table.
 
@@ -1021,7 +1035,15 @@ def to_gbq(
             "Invalid Table Name. Should be of the form 'datasetId.tableId' or "
             "'projectId.datasetId.tableId'"
         )
-
+    if partitioned:
+        if partition_column not in dataframe.columns:
+            raise ValueError("'{0}' is not valid for partition_column, please give a value in ({1})".format(partition_column,",".join(dataframe.columns)))
+        allowable_partition_type=['HOUR','DAY','MONTH','YEAR']
+        if partition_type not in allowable_partition_type:
+            raise ValueError("'{0}' is not valid for partition_type, please give a value in ({1})".format(partition_type,','.join(allowable_partition_type)))
+        if partition_expiration is not None and type(partition_expiration) is not int:
+            raise ValueError("'{0}' is not valid for partition_expiration, please give None or an integer value".format(partition_expiration))
+    
     connector = GbqConnector(
         project_id,
         reauth=reauth,
@@ -1100,6 +1122,10 @@ def to_gbq(
         chunksize=chunksize,
         schema=table_schema,
         progress_bar=progress_bar,
+        partitioned=partitioned,
+        partition_column=partition_column,
+        partition_type=partition_type,
+        partition_expiration=partition_expiration,
     )
 
 
