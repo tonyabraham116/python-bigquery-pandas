@@ -1037,13 +1037,16 @@ def to_gbq(
         )
     if partitioned:
         if partition_column not in dataframe.columns:
-            raise ValueError("'{0}' is not valid for partition_column, please give a value in ({1})".format(partition_column,",".join(dataframe.columns)))
-        allowable_partition_type=['HOUR','DAY','MONTH','YEAR']
+            raise ValueError("'{0}' is not valid for partition_column, please give a value in ({1})".format(
+                partition_column, ",".join(dataframe.columns)))
+        allowable_partition_type = ['HOUR', 'DAY', 'MONTH', 'YEAR']
         if partition_type not in allowable_partition_type:
-            raise ValueError("'{0}' is not valid for partition_type, please give a value in ({1})".format(partition_type,','.join(allowable_partition_type)))
+            raise ValueError("'{0}' is not valid for partition_type, please give a value in ({1})".format(
+                partition_type, ','.join(allowable_partition_type)))
         if partition_expiration is not None and type(partition_expiration) is not int:
-            raise ValueError("'{0}' is not valid for partition_expiration, please give None or an integer value".format(partition_expiration))
-    
+            raise ValueError("'{0}' is not valid for partition_expiration, please give None or an integer value".format(
+                partition_expiration))
+
     connector = GbqConnector(
         project_id,
         reauth=reauth,
