@@ -14,7 +14,6 @@ import pandas_gbq.schema
 
 def encode_chunk(dataframe):
     """Return a file-like object of CSV-encoded rows.
-
     Args:
       dataframe (pandas.DataFrame): A chunk of a dataframe to encode
     """
@@ -59,11 +58,23 @@ def load_chunks(
     chunksize=None,
     schema=None,
     location=None,
+    partitioned=False,
+    partition_column=None,
+    partition_type=None,
+    partition_expiration=None
 ):
     job_config = bigquery.LoadJobConfig()
     job_config.write_disposition = "WRITE_APPEND"
     job_config.source_format = "CSV"
     job_config.allow_quoted_newlines = True
+    
+    if partitioned:
+        time_partitioning=bigquery.TimePartitioning()
+        time_partitioning.field=partition_column
+        time_partitioning.type_=partition_type
+        if partition_expiration is not None:
+            time_partitioning.expiration_ms=partition_expiration
+        job_config.time_partitioning=time_partitioning
 
     # Explicit schema? Use that!
     if schema is not None:
