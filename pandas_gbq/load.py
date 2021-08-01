@@ -67,14 +67,14 @@ def load_chunks(
     job_config.write_disposition = "WRITE_APPEND"
     job_config.source_format = "CSV"
     job_config.allow_quoted_newlines = True
-    
+
     if partitioned:
-        time_partitioning=bigquery.TimePartitioning()
-        time_partitioning.field=partition_column
-        time_partitioning.type_=partition_type
+        time_partitioning = bigquery.TimePartitioning()
+        time_partitioning.field = partition_column
+        time_partitioning.type_ = partition_type
         if partition_expiration is not None:
-            time_partitioning.expiration_ms=partition_expiration
-        job_config.time_partitioning=time_partitioning
+            time_partitioning.expiration_ms = partition_expiration
+        job_config.time_partitioning = time_partitioning
 
     # Explicit schema? Use that!
     if schema is not None:
